@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Programmer's Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #61dafb;
+        }
+
+        .calculator {
+            background-color: #2d2d2d;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+        }
+
+        .display {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .buttons button {
+            padding: 15px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            background-color: #3e3e3e;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .buttons button:hover {
+            background-color: #575757;
+        }
+
+        .number-systems {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .number-systems div {
+            width: 48%;
+        }
+
+        .number-systems input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Programmer's Calculator</h1>
+    <div class="calculator">
+        <input type="text" id="display" class="display" readonly>
+
+        <div class="buttons">
+            <button onclick="input('0')">0</button>
+            <button onclick="input('1')">1</button>
+            <button onclick="input('2')">2</button>
+            <button onclick="input('3')">3</button>
+            <button onclick="input('4')">4</button>
+            <button onclick="input('5')">5</button>
+            <button onclick="input('6')">6</button>
+            <button onclick="input('7')">7</button>
+            <button onclick="input('8')">8</button>
+            <button onclick="input('9')">9</button>
+            <button onclick="input('A')">A</button>
+            <button onclick="input('B')">B</button>
+            <button onclick="input('C')">C</button>
+            <button onclick="input('D')">D</button>
+            <button onclick="input('E')">E</button>
+            <button onclick="input('F')">F</button>
+            <button onclick="setOperator('AND')">AND</button>
+            <button onclick="setOperator('OR')">OR</button>
+            <button onclick="setOperator('XOR')">XOR</button>
+            <button onclick="setOperator('NOT')">NOT</button>
+            <button onclick="setOperator('LSH')">LSH</button>
+            <button onclick="setOperator('RSH')">RSH</button>
+            <button onclick="calculate()">=</button>
+            <button onclick="clearDisplay()">C</button>
+        </div>
+
+        <div class="number-systems">
+            <div>
+                <label for="binary">Binary</label>
+                <input type="text" id="binary" readonly>
+            </div>
+            <div>
+                <label for="octal">Octal</label>
+                <input type="text" id="octal" readonly>
+            </div>
+        </div>
+        <div class="number-systems">
+            <div>
+                <label for="decimal">Decimal</label>
+                <input type="text" id="decimal" readonly>
+            </div>
+            <div>
+                <label for="hexadecimal">Hexadecimal</label>
+                <input type="text" id="hexadecimal" readonly>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentInput = '';
+        let operator = '';
+        let operand1 = null;
+
+        function input(value) {
+            currentInput += value;
+            document.getElementById('display').value = currentInput;
+            updateNumberSystems(currentInput);
+        }
+
+        function setOperator(op) {
+            if (op === 'NOT') {
+                operator = op;
+                calculate();
+            } else {
+                if (currentInput === '') return;
+                operand1 = parseInt(currentInput, 16);
+                operator = op;
+                currentInput = '';
+                document.getElementById('display').value = operator;
+            }
+        }
+
+        function calculate() {
+            let result;
+            let operand2 = parseInt(currentInput, 16);
+
+            switch (operator) {
+                case 'AND':
+                    result = operand1 & operand2;
+                    break;
+                case 'OR':
+                    result = operand1 | operand2;
+                    break;
+                case 'XOR':
+                    result = operand1 ^ operand2;
+                    break;
+                case 'NOT':
+                    result = ~parseInt(currentInput, 16);
+                    break;
+                case 'LSH':
+                    result = operand1 << operand2;
+                    break;
+                case 'RSH':
+                    result = operand1 >> operand2;
+                    break;
+                default:
+                    return;
+            }
+
+            result = result >>> 0; // Convert to unsigned 32-bit integer
+            currentInput = result.toString(16).toUpperCase();
+            document.getElementById('display').value = currentInput;
+            updateNumberSystems(currentInput);
+            operator = '';
+            operand1 = null;
+        }
+
+        function clearDisplay() {
+            currentInput = '';
+            operator = '';
+            operand1 = null;
+            document.getElementById('display').value = '';
+            document.getElementById('binary').value = '';
+            document.getElementById('octal').value = '';
+            document.getElementById('decimal').value = '';
+            document.getElementById('hexadecimal').value = '';
+        }
+
+        function updateNumberSystems(value) {
+            let num = parseInt(value, 16);
+            if (isNaN(num)) {
+                document.getElementById('binary').value = '';
+                document.getElementById('octal').value = '';
+                document.getElementById('decimal').value = '';
+                document.getElementById('hexadecimal').value = '';
+                return;
+            }
+            document.getElementById('binary').value = num.toString(2);
+            document.getElementById('octal').value = num.toString(8);
+            document.getElementById('decimal').value = num.toString(10);
+            document.getElementById('hexadecimal').value = num.toString(16).toUpperCase();
+        }
+    </script>
+
+</body>
+</html>
